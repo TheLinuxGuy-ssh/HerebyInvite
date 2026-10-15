@@ -1,0 +1,16 @@
+{
+  "name": "@hereby/models",
+  "version": "0.1.0",
+  "type": "module",
+  "bin": {
+    "bakeoff": "./src/cli.ts"
+  },
+  "main": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@hereby/spec": "workspace:*",
+    "backboard-sdk": "^1.5.19"
+  }
+}

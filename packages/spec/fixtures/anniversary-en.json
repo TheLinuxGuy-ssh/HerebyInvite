@@ -1,0 +1,52 @@
+{
+  "version": 1,
+  "event": {
+    "type": "anniversary",
+    "title": "25th Anniversary Celebration",
+    "date": "2026-11-12",
+    "time": "19:30",
+    "timezone": "Asia/Kolkata",
+    "venue": "The Ooty Heritage Hotel",
+    "address": "Ooty, Tamil Nadu",
+    "hosts": ["Mr. & Mrs. Raman", "The Family"],
+    "language": "en"
+  },
+  "theme": {
+    "family": "floral",
+    "palette": {
+      "primary": "#6E4C41",
+      "secondary": "#D6B98C",
+      "accent": "#F4E7D3",
+      "background": "#F7F1EA",
+      "text": "#2B1F1A"
+    },
+    "typography": {
+      "heading": "lora",
+      "body": "merriweather"
+    },
+    "mood": ["elegant", "nostalgic", "golden"]
+  },
+  "scenes": [
+    { "type": "hero", "headline": "Twenty-five years of love", "subline": "A night of music, memories, and warmth" },
+    { "type": "story", "paragraphs": ["From Ooty to this beautiful chapter, our parents have built a home filled with laughter and grace.", "We invite you to celebrate their journey with a classic evening of old Bollywood favourites."] },
+    { "type": "schedule", "items": [
+      { "name": "Welcome Drinks", "date": "2026-11-12", "time": "19:30", "venue": "The Ooty Heritage Hotel" },
+      { "name": "Dinner", "date": "2026-11-12", "time": "20:30", "venue": "The Ooty Heritage Hotel" }
+    ] },
+    { "type": "venue", "name": "The Ooty Heritage Hotel", "address": "Ooty, Tamil Nadu", "mapsQuery": "The Ooty Heritage Hotel Ooty" },
+    { "type": "closing", "message": "We hope you will join us for a memorable evening." }
+  ],
+  "motion": { "preset": "rise", "intensity": "subtle" },
+  "copy": {
+    "0": "Twenty-five years of love",
+    "1": "A night of music, memories, and warmth",
+    "2": "Old Bollywood favorites and a wonderful evening",
+    "3": "A formal dinner and celebration",
+    "4": "Thank you for sharing this night with us"
+  },
+  "sharing": {
+    "title": "25th Anniversary Celebration",
+    "description": "An elegant evening honouring twenty-five years of love and togetherness.",
+    "themeColor": "#6E4C41"
+  }
+}

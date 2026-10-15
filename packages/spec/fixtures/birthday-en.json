@@ -1,0 +1,50 @@
+{
+  "version": 1,
+  "event": {
+    "type": "birthday",
+    "title": "Aanya's 25th Birthday",
+    "date": "2026-10-18",
+    "time": "18:00",
+    "timezone": "Asia/Kolkata",
+    "venue": "Home",
+    "address": "Bengaluru",
+    "hosts": ["Aanya", "The Mehta Family"],
+    "language": "en"
+  },
+  "theme": {
+    "family": "playful",
+    "palette": {
+      "primary": "#FF7A59",
+      "secondary": "#7DC7C7",
+      "accent": "#FCE38A",
+      "background": "#FFF9F4",
+      "text": "#2A2E36"
+    },
+    "typography": {
+      "heading": "poppins",
+      "body": "inter"
+    },
+    "mood": ["dreamy", "sunny", "playful"]
+  },
+  "scenes": [
+    { "type": "hero", "headline": "Aanya turns 25", "subline": "A magical little birthday celebration" },
+    { "type": "countdown", "targetDateTime": "2026-10-18T18:00:00+05:30" },
+    { "type": "story", "paragraphs": ["We're gathering for a tiny celebration full of laughter, cake, and cozy stories.", "A sweet evening with the people we love most."] },
+    { "type": "gallery", "imageQueries": ["Studio Ghibli inspired birthday party home decor", "soft pastel party table"] },
+    { "type": "closing", "message": "Please join us for a warm and whimsical birthday evening." }
+  ],
+  "motion": { "preset": "pulse", "intensity": "lively" },
+  "interaction": "sparkles",
+  "copy": {
+    "0": "Aanya turns 25",
+    "1": "A tiny party at home",
+    "2": "Joy, cake, and a sprinkle of magic",
+    "3": "A dreamy Studio Ghibli mood",
+    "4": "Please join us"
+  },
+  "sharing": {
+    "title": "Aanya's 25th Birthday",
+    "description": "A whimsical at-home birthday celebration with Studio Ghibli vibes.",
+    "themeColor": "#FF7A59"
+  }
+}

@@ -1,0 +1,61 @@
+{
+  "version": 1,
+  "event": {
+    "type": "wedding",
+    "title": "Aarav aur Meher ki shaadi",
+    "date": "2026-12-14",
+    "time": "18:30",
+    "timezone": "Asia/Kolkata",
+    "venue": "The Royal Palace",
+    "address": "Connaught Place, New Delhi",
+    "hosts": ["Sharma Family", "Kapoor Family"],
+    "language": "hinglish"
+  },
+  "ceremonies": [
+    { "name": "Haldi", "date": "2026-12-12", "time": "10:00", "venue": "Sharma Villa" },
+    { "name": "Mehendi", "date": "2026-12-13", "time": "17:00", "venue": "Mela Grounds" },
+    { "name": "Sangeet", "date": "2026-12-14", "time": "19:00", "venue": "The Royal Palace" }
+  ],
+  "theme": {
+    "family": "floral",
+    "palette": {
+      "primary": "#7C1D1D",
+      "secondary": "#D4AF37",
+      "accent": "#F7E7C6",
+      "background": "#FFF8F1",
+      "text": "#2B1D1A"
+    },
+    "typography": {
+      "heading": "playfair",
+      "body": "poppins"
+    },
+    "mood": ["royal", "warm", "vibrant"]
+  },
+  "scenes": [
+    { "type": "hero", "headline": "Aarav aur Meher ka shaadi", "subline": "14 December · New Delhi" },
+    { "type": "countdown", "targetDateTime": "2026-12-14T18:30:00+05:30" },
+    { "type": "story", "paragraphs": ["Family ki duaaon aur pyaar se bhara ek naya safar.", "Hum aap sab ka aashirvaad chahte hain."] },
+    { "type": "schedule", "items": [
+      { "name": "Haldi", "date": "2026-12-12", "time": "10:00", "venue": "Sharma Villa" },
+      { "name": "Mehendi", "date": "2026-12-13", "time": "17:00", "venue": "Mela Grounds" },
+      { "name": "Sangeet", "date": "2026-12-14", "time": "19:00", "venue": "The Royal Palace" }
+    ] },
+    { "type": "venue", "name": "The Royal Palace", "address": "Connaught Place, New Delhi", "mapsQuery": "The Royal Palace New Delhi" },
+    { "type": "closing", "message": "Aapka swagat hai humare dilon mein." }
+  ],
+  "motion": { "preset": "drift", "intensity": "medium" },
+  "interaction": "sparkles",
+  "copy": {
+    "0": "Aarav aur Meher",
+    "1": "Come celebrate with us",
+    "2": "Family aur pyaar ki mehfil",
+    "3": "Aapka hona zaroori hai",
+    "4": "The Royal Palace, New Delhi",
+    "5": "Thanks for being part of our joy"
+  },
+  "sharing": {
+    "title": "Aarav aur Meher ki shaadi",
+    "description": "A lovely celebration with family and friends.",
+    "themeColor": "#7C1D1D"
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "name": "hereby",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "packageManager": "pnpm@9.15.0",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "lint": "eslint . --ext .ts,.js,.mjs",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "vitest run",
+    "bakeoff": "pnpm --dir packages/models exec tsx src/cli.ts",
+    "dev:web": "pnpm --dir apps/web dev"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.19.0",
+    "@types/node": "^22.10.1",
+    "@typescript-eslint/eslint-plugin": "^8.17.0",
+    "@typescript-eslint/parser": "^8.17.0",
+    "eslint": "^8.57.1",
+    "prettier": "^3.4.0",
+    "tsx": "^4.19.1",
+    "typescript": "^5.7.0",
+    "vitest": "^2.1.8",
+    "zod": "^3.23.8"
+  }
+}
