@@ -8,3 +8,13 @@ The worker turns a natural-language brief into an invitation in two explicit sta
 4. `compileInvitationPlan` deterministically converts that plan into the validated `SiteSpec` consumed by the renderer.
 
 This boundary prevents the renderer from guessing content and makes unsupported sections or missing supporting data fail before publication. It also keeps design intent explicit instead of hiding it in a generic prompt.
+
+## Media providers
+
+Media is opt-in through `MEDIA_SOURCE`:
+
+- `none` keeps generation API-free and uses the renderer's visual fallbacks.
+- `search` uses Pexels when `PEXELS_API_KEY` is configured.
+- `generate` uses the configurable NVIDIA NIM OpenAI-compatible image endpoint when `NIM_BASE_URL`, `NIM_API_KEY`, and `NIM_IMAGE_MODEL` are configured.
+
+NIM video generation remains an asynchronous provider concern because NVIDIA NIM model deployments expose different job contracts. The `SiteSpec` already supports hosted video assets, so a job adapter can be added without changing the renderer or invitation contract.

@@ -17,4 +17,20 @@ describe('renderSite', () => {
     expect(html).not.toContain('<title><Invite>');
     expect(html).toContain('The Royal Palace');
   });
+
+  it('renders hosted media with accessible attributes when supplied', () => {
+    const spec = {
+      ...SPEC_JSON_EXAMPLE,
+      scenes: [...SPEC_JSON_EXAMPLE.scenes, { type: 'gallery' as const, imageQueries: ['celebration'] }],
+      media: {
+        hero: { kind: 'image' as const, src: 'https://cdn.example.com/hero.jpg', alt: 'Warm floral arch' },
+        gallery: [{ kind: 'image' as const, src: 'https://cdn.example.com/gallery.jpg', alt: 'Guests at sunset' }],
+      },
+    };
+    const html = renderSite(spec);
+
+    expect(html).toContain('https://cdn.example.com/hero.jpg');
+    expect(html).toContain('alt="Warm floral arch"');
+    expect(html).toContain('https://cdn.example.com/gallery.jpg');
+  });
 });

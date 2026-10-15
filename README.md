@@ -1,6 +1,6 @@
 # Hereby
 
-Hereby turns a one-line event description into a validated invitation-site spec, then renders that spec into a static invite site automatically published behind a custom domain. The core idea is spec-first: an open-weight model never writes HTML directly; instead it emits a strict JSON `SiteSpec`, and the renderer consumes that contract to produce the final site.
+Hereby turns an event description into an intake-reviewed, validated invitation-site spec, then renders that spec into a responsive invite site. The core idea is spec-first: an LLM never writes HTML directly; it interprets the brief, asks for missing content and design direction, emits a strict JSON `SiteSpec`, and the renderer consumes that contract. Optional media providers can search stock imagery or generate hosted images through NVIDIA NIM.
 
 ## Monorepo layout
 
@@ -11,6 +11,7 @@ Hereby turns a one-line event description into a validated invitation-site spec,
 | `packages/spec` | The JSON schema contract and validation logic |
 | `packages/dns` | Cloudflare DNS client with idempotent record handling |
 | `packages/models` | OpenAI-compatible model client and bake-off harness |
+| `packages/media` | Provider-neutral stock search and NVIDIA NIM media adapters |
 | `packages/renderer` | Deterministic HTML renderer for validated SiteSpecs |
 | `packages/scenes` | Future primitive scene definitions |
 | `packages/db` | Future persistence layer |

@@ -13,6 +13,15 @@ function escapeHtml(value: string): string {
     .replaceAll("'", '&#39;');
 }
 
+function renderMedia(asset: NonNullable<SiteSpec['media']>['hero'], className: string): string {
+  if (!asset) return '';
+  if (asset.kind === 'video') {
+    const poster = asset.poster ? ` poster="${escapeHtml(asset.poster)}"` : '';
+    return `<video class="${className}" autoplay muted loop playsinline${poster} aria-label="${escapeHtml(asset.alt)}"><source src="${escapeHtml(asset.src)}" type="video/mp4"></video>`;
+  }
+  return `<img class="${className}" src="${escapeHtml(asset.src)}" alt="${escapeHtml(asset.alt)}" loading="lazy" decoding="async">`;
+}
+
 function renderScene(scene: SiteSpec['scenes'][number]): string {
   switch (scene.type) {
     case 'hero':
@@ -42,7 +51,7 @@ function renderStyles(spec: SiteSpec): string {
     :root{--primary:${primary};--secondary:${secondary};--accent:${accent};--background:${background};--text:${text}}
     *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--background);color:var(--text);font-family:${spec.theme.typography.body === 'merriweather' ? 'Georgia,serif' : 'system-ui,-apple-system,sans-serif'};line-height:1.7}
     main{max-width:920px;margin:0 auto;overflow:hidden}.scene{position:relative;padding:clamp(4rem,12vw,9rem) clamp(1.25rem,6vw,4rem);border-bottom:1px solid color-mix(in srgb,var(--primary),transparent 84%);isolation:isolate}
-    .hero{text-align:center;min-height:92vh;display:grid;place-items:center;background:radial-gradient(circle at 50% 35%,color-mix(in srgb,var(--accent),transparent 25%),transparent 42%),linear-gradient(135deg,var(--background),color-mix(in srgb,var(--accent),transparent 20%))}
+    .hero{text-align:center;min-height:92vh;display:grid;place-items:center;background:radial-gradient(circle at 50% 35%,color-mix(in srgb,var(--accent),transparent 25%),transparent 42%),linear-gradient(135deg,var(--background),color-mix(in srgb,var(--accent),transparent 20%))}.hero-media{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.24;mix-blend-mode:multiply;z-index:-1}.gallery-media{width:100%;height:100%;min-height:13rem;object-fit:cover;border-radius:inherit}
     .hero-content{position:relative;z-index:1;max-width:680px}.hero-orbit{position:absolute;width:min(70vw,520px);height:min(70vw,520px);border:1px solid color-mix(in srgb,var(--secondary),transparent 60%);border-radius:50%;box-shadow:0 0 0 24px color-mix(in srgb,var(--secondary),transparent 92%),0 0 0 48px color-mix(in srgb,var(--secondary),transparent 95%);animation:orbit 18s linear infinite}
     h1,h2,h3{line-height:1.1;margin-top:0;color:var(--primary);font-family:${spec.theme.typography.heading === 'playfair' || spec.theme.typography.heading === 'cormorant' ? 'Georgia,serif' : 'system-ui,-apple-system,sans-serif'}}h1{font-size:clamp(3rem,10vw,7rem);font-weight:500;letter-spacing:-.04em}.hero-subline{font-size:clamp(1rem,2vw,1.3rem);opacity:.8}.eyebrow,.section-kicker{color:var(--secondary);letter-spacing:.16em;text-transform:uppercase;font-size:.74rem;font-weight:700}.scroll-cue{display:block;margin-top:4rem;font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;opacity:.6}
     .scene:not(.hero)>*{max-width:680px;margin-left:auto;margin-right:auto}.scene h2{font-size:clamp(2rem,5vw,4rem)}.story p{font-size:clamp(1.1rem,2vw,1.35rem)}.countdown,.closing{text-align:center}.countdown time{display:block;font-size:clamp(1.6rem,5vw,3rem);color:var(--primary);font-variant-numeric:tabular-nums}
@@ -58,5 +67,18 @@ export function renderSite(spec: SiteSpec, options: RenderOptions = {}): string 
   const title = escapeHtml(spec.sharing.title);
   const description = escapeHtml(spec.sharing.description);
   const canonical = options.canonicalUrl ? `<link rel="canonical" href="${escapeHtml(options.canonicalUrl)}">` : '';
-  return `<!doctype html><html lang="${spec.event.language === 'hi' ? 'hi' : 'en'}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light"><title>${title}</title><meta name="description" content="${description}"><meta name="theme-color" content="${escapeHtml(spec.sharing.themeColor)}">${canonical}${renderStyles(spec)}</head><body><main data-occasion="${escapeHtml(spec.event.type)}" data-motion="${escapeHtml(spec.motion.preset)}">${spec.scenes.map(renderScene).join('')}</main></body></html>`;
+  const heroMedia = renderMedia(spec.media?.hero, 'hero-media');
+  const galleryMedia = spec.media?.gallery ?? [];
+  let galleryIndex = 0;
+  const scenes = spec.scenes.map((scene) => {
+    const rendered = renderScene(scene);
+    if (scene.type !== 'gallery') return rendered;
+    return rendered.replace(/<div class="gallery-placeholder ([^"]+)" role="img" aria-label="([^"]+)"><span>[^<]+<\/span><\/div>/g, (match, className: string, alt: string) => {
+      const asset = galleryMedia[galleryIndex];
+      galleryIndex += 1;
+      return asset ? `<div class="gallery-placeholder ${className}" role="img" aria-label="${alt}">${renderMedia(asset, 'gallery-media')}</div>` : match;
+    });
+  }).join('');
+  const withHeroMedia = scenes.replace('<div class="hero-orbit" aria-hidden="true">', `${heroMedia}<div class="hero-orbit" aria-hidden="true">`);
+  return `<!doctype html><html lang="${spec.event.language === 'hi' ? 'hi' : 'en'}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light"><title>${title}</title><meta name="description" content="${description}"><meta name="theme-color" content="${escapeHtml(spec.sharing.themeColor)}">${canonical}${renderStyles(spec)}</head><body><main data-occasion="${escapeHtml(spec.event.type)}" data-motion="${escapeHtml(spec.motion.preset)}">${withHeroMedia}</main></body></html>`;
 }

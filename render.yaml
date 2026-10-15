@@ -35,3 +35,15 @@ services:
         value: "true"
       - key: SENTRY_DSN
         sync: false
+      - key: MEDIA_SOURCE
+        value: none
+      - key: PEXELS_API_KEY
+        sync: false
+      - key: NIM_BASE_URL
+        sync: false
+      - key: NIM_API_KEY
+        sync: false
+      - key: NIM_IMAGE_MODEL
+        value: black-forest-labs/flux.1-dev
+      - key: NIM_VIDEO_MODEL
+        value: nvidia/cosmos3-nano

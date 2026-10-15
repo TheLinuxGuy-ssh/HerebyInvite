@@ -7,6 +7,7 @@
     ".": "./src/index.ts"
   },
   "dependencies": {
+    "@hereby/media": "workspace:*",
     "@hereby/models": "workspace:*",
     "@hereby/spec": "workspace:*"
   }

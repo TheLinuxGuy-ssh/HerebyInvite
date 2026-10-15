@@ -106,6 +106,15 @@ const detailsSceneSchema = z.object({
   items: z.array(z.object({ label: nonEmptyString, value: nonEmptyString })).min(1).max(8),
 });
 
+const mediaAssetSchema = z.object({
+  kind: z.enum(['image', 'video', 'icon']),
+  src: z.string().url(),
+  alt: nonEmptyString,
+  poster: z.string().url().optional(),
+  width: z.number().int().positive().optional(),
+  height: z.number().int().positive().optional(),
+});
+
 const sceneSchema = z.discriminatedUnion('type', [
   heroSceneSchema,
   countdownSceneSchema,
@@ -140,6 +149,11 @@ const siteSpecSchema = z.object({
     description: nonEmptyString,
     themeColor: hexColor,
   }),
+  media: z.object({
+    hero: mediaAssetSchema.optional(),
+    gallery: z.array(mediaAssetSchema).max(8).optional(),
+    ambientVideo: mediaAssetSchema.optional(),
+  }).optional(),
 });
 
 export type SiteSpec = z.infer<typeof siteSpecSchema>;
@@ -216,7 +230,7 @@ const briefIntakeSchema = z.object({
       motion: nonEmptyString.optional(),
     }),
   }),
-  questions: z.array(intakeQuestionSchema).max(6),
+  questions: z.array(intakeQuestionSchema).max(10),
 });
 
 export type BriefIntake = z.infer<typeof briefIntakeSchema>;

@@ -1,4 +1,5 @@
 import { BackboardClient, detectPromptLanguage, tryParseBriefIntake, tryParseInvitationPlan } from '@hereby/models';
+import { createMediaProvider, type MediaAsset } from '@hereby/media';
 import type { BriefIntake, InvitationPlan, SiteSpec } from '@hereby/spec';
 
 export interface GenerateSiteInput {
@@ -73,7 +74,7 @@ function buildIntakePrompt(): string {
     'Read the brief and identify facts that are explicitly present. Never invent facts.',
     'Ask only the highest-value questions needed to make a useful, informative invitation, including design questions when the host has not supplied design direction.',
     'For a publishable invitation, prioritize date, time, venue, hosts, and the occasion-specific details guests need.',
-    'Ask no more than six questions. Do not ask for information that is already present.',
+    'Ask no more than ten questions. Do not ask for information that is already present.',
     'Set ready to true only when the invitation can be meaningfully generated from the brief and the host has either supplied or explicitly accepted direction for style, mood, copy tone, imagery, and motion.',
     'Every question must declare input as single, multiple, or freeform. Use options for single/multiple questions and never force a nuanced answer into a fixed option.',
     'Ask no more than ten questions in one round. Prefer a short, clear set over a generic questionnaire.',
@@ -173,6 +174,36 @@ export async function analyzeBrief(prompt: string, client: Pick<BackboardClient,
 function toIsoDateTime(date: string, time: string, timezone: string): string {
   const offset = timezone === 'Asia/Kolkata' ? '+05:30' : 'Z';
   return `${date}T${time}:00${offset}`;
+}
+
+async function enrichMedia(spec: SiteSpec, plan: InvitationPlan): Promise<SiteSpec> {
+  const source = process.env.MEDIA_SOURCE ?? 'none';
+  if (source === 'none' || plan.visualDirection.imageQueries.length === 0) return spec;
+  const provider = createMediaProvider(source === 'search' ? 'search' : 'generate');
+  if (!provider) throw new Error('MEDIA_SOURCE is enabled but no media provider credentials are configured.');
+  const queries = plan.visualDirection.imageQueries.slice(0, 5);
+  const assets: MediaAsset[] = [];
+  if (source === 'search') {
+    for (const query of queries) {
+      const result = await provider.searchImages({ query, orientation: 'landscape', limit: 1 });
+      const asset = result.assets[0];
+      if (asset) assets.push(asset);
+    }
+  } else if (source === 'generate') {
+    for (const query of queries) {
+      assets.push(await provider.generate({ kind: 'image', prompt: query, aspectRatio: 'landscape' }));
+    }
+  } else {
+    throw new Error(`Unsupported MEDIA_SOURCE "${source}". Use none, search, or generate.`);
+  }
+  if (assets.length === 0) return spec;
+  return {
+    ...spec,
+    media: {
+      hero: assets[0],
+      ...(assets.length > 1 ? { gallery: assets.slice(1) } : {}),
+    },
+  };
 }
 
 export function compileInvitationPlan(plan: InvitationPlan): SiteSpec {
@@ -276,7 +307,8 @@ export async function generateSite(input: GenerateSiteInput, client: Pick<Backbo
     const parsed = tryParseInvitationPlan(completion.content);
     if (parsed.ok) {
       try {
-        return { spec: compileInvitationPlan(parsed.plan), plan: parsed.plan, language, attempts };
+        const spec = await enrichMedia(compileInvitationPlan(parsed.plan), parsed.plan);
+        return { spec, plan: parsed.plan, language, attempts };
       } catch (error) {
         lastError = error instanceof Error ? error.message : 'Invitation plan could not be compiled.';
       }
