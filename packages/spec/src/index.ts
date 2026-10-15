@@ -137,6 +137,47 @@ const siteSpecSchema = z.object({
 
 export type SiteSpec = z.infer<typeof siteSpecSchema>;
 
+const planSectionTypes = ['hero', 'countdown', 'story', 'schedule', 'venue', 'gallery', 'closing'] as const;
+
+const invitationPlanSchema = z.object({
+  version: z.literal(1),
+  interpretation: z.object({
+    occasion: z.enum(eventTypes),
+    title: nonEmptyString,
+    date: isoDate,
+    time: timeOfDay,
+    timezone: nonEmptyString,
+    venue: nonEmptyString,
+    address: nonEmptyString.optional(),
+    hosts: z.array(nonEmptyString).min(1),
+    unknowns: z.array(nonEmptyString).max(8),
+  }),
+  language: z.enum(languages),
+  copy: z.object({
+    heroHeadline: nonEmptyString,
+    heroSubline: nonEmptyString.optional(),
+    welcome: nonEmptyString,
+    story: z.array(nonEmptyString).max(4),
+    closing: nonEmptyString,
+  }),
+  ceremonies: z.array(ceremonySchema).max(12),
+  sections: z.array(z.enum(planSectionTypes)).min(2).max(7),
+  visualDirection: z.object({
+    family: z.enum(themeFamilies),
+    mood: z.array(nonEmptyString).min(2).max(4),
+    palette: themePaletteSchema,
+    typography: typographySchema,
+    motion: z.object({
+      preset: z.enum(motionPresets),
+      intensity: z.enum(motionIntensities),
+    }),
+    interaction: z.enum(['petalfall', 'sparkles', 'none']),
+    imageQueries: z.array(nonEmptyString).max(6),
+  }),
+});
+
+export type InvitationPlan = z.infer<typeof invitationPlanSchema>;
+
 export function validateSpec(input: unknown): { ok: true; spec: SiteSpec } | { ok: false; errors: string[] } {
   const parsed = siteSpecSchema.safeParse(input);
 
@@ -151,6 +192,21 @@ export function validateSpec(input: unknown): { ok: true; spec: SiteSpec } | { o
   }
 
   return { ok: true, spec: parsed.data };
+}
+
+export function validateInvitationPlan(input: unknown): { ok: true; plan: InvitationPlan } | { ok: false; errors: string[] } {
+  const parsed = invitationPlanSchema.safeParse(input);
+
+  if (!parsed.success) {
+    const errors = parsed.error.issues.map((issue) => {
+      const path = issue.path.length > 0 ? issue.path.join('.') : 'root';
+      return `${path}: ${issue.message.trim()}`;
+    });
+
+    return { ok: false, errors };
+  }
+
+  return { ok: true, plan: parsed.data };
 }
 
 export const SPEC_JSON_EXAMPLE: SiteSpec = {
@@ -213,3 +269,4 @@ export const SPEC_JSON_EXAMPLE: SiteSpec = {
 };
 
 export const siteSpec = siteSpecSchema;
+export const invitationPlan = invitationPlanSchema;
