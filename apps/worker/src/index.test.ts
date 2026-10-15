@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import type { InvitationPlan } from '@hereby/spec';
 
-import { compileInvitationPlan } from './index.js';
+import { analyzeBrief, compileInvitationPlan } from './index.js';
 
 const plan: InvitationPlan = {
   version: 1,
@@ -28,6 +28,9 @@ const plan: InvitationPlan = {
   ceremonies: [
     { name: 'Sangeet', date: '2026-12-13', time: '19:00', venue: 'Mela Grounds' },
   ],
+  guestInfo: [
+    { label: 'Dress code', value: 'Festive Indian' },
+  ],
   sections: ['hero', 'countdown', 'story', 'schedule', 'venue', 'closing'],
   visualDirection: {
     family: 'floral',
@@ -47,6 +50,32 @@ describe('compileInvitationPlan', () => {
     expect(spec.scenes.map((scene) => scene.type)).toEqual(['hero', 'countdown', 'story', 'schedule', 'venue', 'closing']);
     expect(spec.event.title).toBe('Aarav & Meher');
     expect(spec.scenes[0]).toMatchObject({ type: 'hero', headline: 'Join us for a celebration of love' });
+  });
+
+  describe('analyzeBrief', () => {
+    it('asks for critical facts instead of accepting an incomplete brief', async () => {
+      const result = await analyzeBrief(
+        'We are planning a beautiful wedding with a royal feeling.',
+        {
+          complete: () => Promise.resolve({
+            content: JSON.stringify({
+              version: 1,
+              ready: true,
+              occasion: 'wedding',
+              known: { hosts: [], guestNotes: [] },
+              questions: [],
+            }),
+            usage: { promptTokens: 1, completionTokens: 1, totalTokens: 2 },
+            wallTimeMs: 1,
+          }),
+        },
+      );
+
+      expect(result.intake.ready).toBe(false);
+      expect(result.intake.questions.map((question) => question.id)).toEqual(
+        expect.arrayContaining(['event-date', 'event-time', 'event-venue', 'hosts']),
+      );
+    });
   });
 
   it('rejects sections that have no supporting content', () => {

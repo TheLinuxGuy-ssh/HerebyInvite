@@ -1,6 +1,6 @@
 import { BackboardClient as BackboardSdkClient } from 'backboard-sdk';
 
-import { validateInvitationPlan, validateSpec, type InvitationPlan, type SiteSpec } from '@hereby/spec';
+import { validateBriefIntake, validateInvitationPlan, validateSpec, type BriefIntake, type InvitationPlan, type SiteSpec } from '@hereby/spec';
 
 export interface BackboardCompletionOptions {
   model: string;
@@ -155,6 +155,20 @@ export function tryParseInvitationPlan(raw: string): { ok: true; plan: Invitatio
     const parsed = JSON.parse(normalized) as unknown;
     const result = validateInvitationPlan(parsed);
     if (result.ok) return { ok: true, plan: result.plan };
+    return { ok: false, errors: result.errors, raw: normalized };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Malformed JSON';
+    return { ok: false, errors: [message], raw: normalized };
+  }
+}
+
+export function tryParseBriefIntake(raw: string): { ok: true; intake: BriefIntake } | { ok: false; errors: string[]; raw: string } {
+  const normalized = raw.trim().replace(/^```(?:json)?/i, '').replace(/```$/i, '').trim();
+
+  try {
+    const parsed = JSON.parse(normalized) as unknown;
+    const result = validateBriefIntake(parsed);
+    if (result.ok) return { ok: true, intake: result.intake };
     return { ok: false, errors: result.errors, raw: normalized };
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Malformed JSON';

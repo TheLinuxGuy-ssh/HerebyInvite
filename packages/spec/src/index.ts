@@ -100,6 +100,12 @@ const closingSceneSchema = z.object({
   message: nonEmptyString,
 });
 
+const detailsSceneSchema = z.object({
+  type: z.literal('details'),
+  title: nonEmptyString,
+  items: z.array(z.object({ label: nonEmptyString, value: nonEmptyString })).min(1).max(8),
+});
+
 const sceneSchema = z.discriminatedUnion('type', [
   heroSceneSchema,
   countdownSceneSchema,
@@ -107,6 +113,7 @@ const sceneSchema = z.discriminatedUnion('type', [
   scheduleSceneSchema,
   venueSceneSchema,
   gallerySceneSchema,
+  detailsSceneSchema,
   closingSceneSchema,
 ]);
 
@@ -137,7 +144,7 @@ const siteSpecSchema = z.object({
 
 export type SiteSpec = z.infer<typeof siteSpecSchema>;
 
-const planSectionTypes = ['hero', 'countdown', 'story', 'schedule', 'venue', 'gallery', 'closing'] as const;
+const planSectionTypes = ['hero', 'countdown', 'story', 'schedule', 'venue', 'gallery', 'details', 'closing'] as const;
 
 const invitationPlanSchema = z.object({
   version: z.literal(1),
@@ -161,6 +168,7 @@ const invitationPlanSchema = z.object({
     closing: nonEmptyString,
   }),
   ceremonies: z.array(ceremonySchema).max(12),
+  guestInfo: z.array(z.object({ label: nonEmptyString, value: nonEmptyString })).max(8),
   sections: z.array(z.enum(planSectionTypes)).min(2).max(7),
   visualDirection: z.object({
     family: z.enum(themeFamilies),
@@ -177,6 +185,32 @@ const invitationPlanSchema = z.object({
 });
 
 export type InvitationPlan = z.infer<typeof invitationPlanSchema>;
+
+const intakeQuestionSchema = z.object({
+  id: nonEmptyString,
+  question: nonEmptyString,
+  reason: nonEmptyString,
+  required: z.boolean(),
+});
+
+const briefIntakeSchema = z.object({
+  version: z.literal(1),
+  ready: z.boolean(),
+  occasion: z.enum(eventTypes),
+  known: z.object({
+    title: nonEmptyString.optional(),
+    date: isoDate.optional(),
+    time: timeOfDay.optional(),
+    timezone: nonEmptyString.optional(),
+    venue: nonEmptyString.optional(),
+    address: nonEmptyString.optional(),
+    hosts: z.array(nonEmptyString).max(8),
+    guestNotes: z.array(nonEmptyString).max(8),
+  }),
+  questions: z.array(intakeQuestionSchema).max(6),
+});
+
+export type BriefIntake = z.infer<typeof briefIntakeSchema>;
 
 export function validateSpec(input: unknown): { ok: true; spec: SiteSpec } | { ok: false; errors: string[] } {
   const parsed = siteSpecSchema.safeParse(input);
@@ -207,6 +241,21 @@ export function validateInvitationPlan(input: unknown): { ok: true; plan: Invita
   }
 
   return { ok: true, plan: parsed.data };
+}
+
+export function validateBriefIntake(input: unknown): { ok: true; intake: BriefIntake } | { ok: false; errors: string[] } {
+  const parsed = briefIntakeSchema.safeParse(input);
+
+  if (!parsed.success) {
+    const errors = parsed.error.issues.map((issue) => {
+      const path = issue.path.length > 0 ? issue.path.join('.') : 'root';
+      return `${path}: ${issue.message.trim()}`;
+    });
+
+    return { ok: false, errors };
+  }
+
+  return { ok: true, intake: parsed.data };
 }
 
 export const SPEC_JSON_EXAMPLE: SiteSpec = {
@@ -270,3 +319,4 @@ export const SPEC_JSON_EXAMPLE: SiteSpec = {
 
 export const siteSpec = siteSpecSchema;
 export const invitationPlan = invitationPlanSchema;
+export const briefIntake = briefIntakeSchema;
