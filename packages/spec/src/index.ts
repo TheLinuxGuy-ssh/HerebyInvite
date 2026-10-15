@@ -191,6 +191,8 @@ const intakeQuestionSchema = z.object({
   question: nonEmptyString,
   reason: nonEmptyString,
   required: z.boolean(),
+  input: z.enum(['single', 'multiple', 'freeform']),
+  options: z.array(nonEmptyString).max(8).optional(),
 });
 
 const briefIntakeSchema = z.object({
@@ -206,6 +208,13 @@ const briefIntakeSchema = z.object({
     address: nonEmptyString.optional(),
     hosts: z.array(nonEmptyString).max(8),
     guestNotes: z.array(nonEmptyString).max(8),
+    designPreferences: z.object({
+      style: nonEmptyString.optional(),
+      mood: z.array(nonEmptyString).max(4),
+      copyTone: nonEmptyString.optional(),
+      imagery: nonEmptyString.optional(),
+      motion: nonEmptyString.optional(),
+    }),
   }),
   questions: z.array(intakeQuestionSchema).max(6),
 });

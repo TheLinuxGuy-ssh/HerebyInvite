@@ -71,10 +71,12 @@ function buildIntakePrompt(): string {
   return [
     'You are the intake director for an immersive invitation website.',
     'Read the brief and identify facts that are explicitly present. Never invent facts.',
-    'Ask only the highest-value questions needed to make a useful, informative invitation.',
+    'Ask only the highest-value questions needed to make a useful, informative invitation, including design questions when the host has not supplied design direction.',
     'For a publishable invitation, prioritize date, time, venue, hosts, and the occasion-specific details guests need.',
     'Ask no more than six questions. Do not ask for information that is already present.',
-    'Set ready to true only when the invitation can be meaningfully generated from the brief and known facts.',
+    'Set ready to true only when the invitation can be meaningfully generated from the brief and the host has either supplied or explicitly accepted direction for style, mood, copy tone, imagery, and motion.',
+    'Every question must declare input as single, multiple, or freeform. Use options for single/multiple questions and never force a nuanced answer into a fixed option.',
+    'Ask no more than ten questions in one round. Prefer a short, clear set over a generic questionnaire.',
     'Output only JSON matching this shape:',
     JSON.stringify({
       version: 1,
@@ -89,6 +91,13 @@ function buildIntakePrompt(): string {
         address: 'Connaught Place, New Delhi',
         hosts: ['The Sharma Family'],
         guestNotes: ['Dress code: festive Indian'],
+        designPreferences: {
+          style: 'editorial botanical',
+          mood: ['warm', 'joyful'],
+          copyTone: 'poetic but clear',
+          imagery: 'floral illustrations',
+          motion: 'slow and graceful',
+        },
       },
       questions: [
         {
@@ -96,6 +105,7 @@ function buildIntakePrompt(): string {
           question: 'Is there a dress code or any note guests should know before arriving?',
           reason: 'This helps guests prepare for the celebration.',
           required: false,
+          input: 'freeform',
         },
       ],
     }),
@@ -104,18 +114,39 @@ function buildIntakePrompt(): string {
 
 function ensureCriticalIntakeQuestions(intake: BriefIntake): BriefIntake {
   const questions = [...intake.questions];
-  const addQuestion = (id: string, question: string, reason: string) => {
-    if (!questions.some((item) => item.id === id) && questions.length < 6) {
-      questions.push({ id, question, reason, required: true });
+  const addQuestion = (
+    id: string,
+    question: string,
+    reason: string,
+    input: 'single' | 'multiple' | 'freeform',
+    options?: string[],
+  ) => {
+    if (!questions.some((item) => item.id === id) && questions.length < 10) {
+      questions.push({ id, question, reason, required: true, input, ...(options ? { options } : {}) });
     }
   };
 
-  if (!intake.known.date) addQuestion('event-date', 'What date should guests save for the celebration?', 'The date is needed for the invitation header, schedule, and countdown.');
-  if (!intake.known.time) addQuestion('event-time', 'What time should guests arrive or what time does the main celebration begin?', 'A clear start time helps guests plan and makes the schedule useful.');
-  if (!intake.known.venue) addQuestion('event-venue', 'Where will the celebration take place?', 'The venue is essential for an informative invitation and directions.');
-  if (intake.known.hosts.length === 0) addQuestion('hosts', 'Who is hosting or being celebrated?', 'Names make the invitation personal and help guests understand who is inviting them.');
+  if (!intake.known.date) addQuestion('event-date', 'What date should guests save for the celebration?', 'The date is needed for the invitation header, schedule, and countdown.', 'freeform');
+  if (!intake.known.time) addQuestion('event-time', 'What time should guests arrive or what time does the main celebration begin?', 'A clear start time helps guests plan and makes the schedule useful.', 'freeform');
+  if (!intake.known.venue) addQuestion('event-venue', 'Where will the celebration take place?', 'The venue is essential for an informative invitation and directions.', 'freeform');
+  if (intake.known.hosts.length === 0) addQuestion('hosts', 'Who is hosting or being celebrated?', 'Names make the invitation personal and help guests understand who is inviting them.', 'freeform');
   if (!intake.known.title && intake.occasion === 'other') {
-    addQuestion('occasion-title', 'What should we call this celebration?', 'A clear title gives the invitation a memorable identity.');
+    addQuestion('occasion-title', 'What should we call this celebration?', 'A clear title gives the invitation a memorable identity.', 'freeform');
+  }
+  if (!intake.known.designPreferences.style) {
+    addQuestion('design-style', 'Which visual direction feels closest to what you want?', 'This sets the design language instead of making the system guess.', 'single', ['Editorial and elegant', 'Traditional and ornate', 'Playful and colorful', 'Minimal and modern', 'Nature-inspired', 'I have a specific idea']);
+  }
+  if (intake.known.designPreferences.mood.length === 0) {
+    addQuestion('design-mood', 'What should guests feel when they open the invitation?', 'Mood guides color, spacing, typography, and animation.', 'multiple', ['Warm', 'Joyful', 'Romantic', 'Grand', 'Playful', 'Serene', 'Festive', 'Intimate']);
+  }
+  if (!intake.known.designPreferences.copyTone) {
+    addQuestion('copy-tone', 'How should the writing sound?', 'Copy tone keeps the words aligned with your occasion and personality.', 'single', ['Warm and personal', 'Poetic and emotional', 'Elegant and formal', 'Playful and cheeky', 'Simple and direct', 'I will describe it']);
+  }
+  if (!intake.known.designPreferences.imagery) {
+    addQuestion('imagery', 'What kind of visual world should we create?', 'Imagery determines whether the page feels photographic, illustrated, cultural, or abstract.', 'single', ['Use my photos later', 'Botanical or floral illustration', 'Cultural motifs and textures', 'Abstract shapes and gradients', 'No imagery, typography-led', 'I have a specific idea']);
+  }
+  if (!intake.known.designPreferences.motion) {
+    addQuestion('motion', 'How should the animation behave?', 'Motion should match the occasion rather than being decorative noise.', 'single', ['Slow and graceful', 'Soft and romantic', 'Lively and celebratory', 'Playful and surprising', 'Minimal and calm', 'No animation']);
   }
 
   return {

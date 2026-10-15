@@ -62,7 +62,11 @@ describe('compileInvitationPlan', () => {
               version: 1,
               ready: true,
               occasion: 'wedding',
-              known: { hosts: [], guestNotes: [] },
+              known: {
+                hosts: [],
+                guestNotes: [],
+                designPreferences: { mood: [] },
+              },
               questions: [],
             }),
             usage: { promptTokens: 1, completionTokens: 1, totalTokens: 2 },
@@ -73,8 +77,14 @@ describe('compileInvitationPlan', () => {
 
       expect(result.intake.ready).toBe(false);
       expect(result.intake.questions.map((question) => question.id)).toEqual(
-        expect.arrayContaining(['event-date', 'event-time', 'event-venue', 'hosts']),
+        expect.arrayContaining(['event-date', 'event-time', 'event-venue', 'hosts', 'design-style', 'design-mood', 'copy-tone', 'imagery', 'motion']),
       );
+      const styleQuestion = result.intake.questions.find((question) => question.id === 'design-style');
+      expect(styleQuestion?.input).toBe('single');
+      expect(styleQuestion?.options).toContain('Editorial and elegant');
+      expect(result.intake.questions.find((question) => question.id === 'design-mood')).toMatchObject({
+        input: 'multiple',
+      });
     });
   });
 
