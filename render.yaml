@@ -1,0 +1,37 @@
+services:
+  - type: web
+    name: hereby-web
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /healthz
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: APP_ENV
+        value: production
+      - key: PORT
+        value: "8787"
+      - key: DATABASE_URL
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      - key: BACKBOARD_API_KEY
+        sync: false
+      - key: BACKBOARD_BASE_URL
+        value: https://app.backboard.io/api
+      - key: BACKBOARD_LLM_PROVIDER
+        value: anthropic
+      - key: BAKEOFF_MODELS
+        value: claude-haiku-4-5-20251001
+      - key: CLOUDFLARE_API_TOKEN
+        sync: false
+      - key: CLOUDFLARE_ZONE_ID
+        sync: false
+      - key: CLOUDFLARE_ZONE_NAME
+        value: herebyinvited.tech
+      - key: DNS_DRY_RUN
+        value: "true"
+      - key: SENTRY_DSN
+        sync: false
