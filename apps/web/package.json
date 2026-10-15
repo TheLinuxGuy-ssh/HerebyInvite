@@ -1,0 +1,17 @@
+{
+  "name": "@hereby/web",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "./src/index.ts",
+  "scripts": {
+    "dev": "tsx src/index.ts",
+    "start": "tsx src/index.ts"
+  },
+  "dependencies": {
+    "@hereby/db": "workspace:*",
+    "@hereby/models": "workspace:*",
+    "@hereby/renderer": "workspace:*",
+    "@hereby/spec": "workspace:*",
+    "@hereby/worker": "workspace:*"
+  }
+}

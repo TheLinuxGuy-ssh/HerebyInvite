@@ -1,0 +1,13 @@
+{
+  "name": "@hereby/worker",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@hereby/models": "workspace:*",
+    "@hereby/spec": "workspace:*"
+  }
+}
